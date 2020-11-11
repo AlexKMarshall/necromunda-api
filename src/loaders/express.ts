@@ -8,7 +8,6 @@ const loader = async ({ app }: { app: express.Application }) => {
 
   app.use(express.json());
 
-  console.log(config.api.prefix);
   app.use(config.api.prefix, router);
 
   return app;
