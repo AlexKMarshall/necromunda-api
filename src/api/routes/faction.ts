@@ -13,7 +13,7 @@ export default (app: Router) => {
 
   route.post("/", async (req, res) => {
     const factionDTO = req.body;
-    if (!factionDTO) {
+    if (!factionDTO.name) {
       res.json({ message: "Faction data missing" }).status(400);
     } else {
       const newFaction = new Faction(factionDTO);

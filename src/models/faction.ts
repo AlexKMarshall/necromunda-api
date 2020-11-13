@@ -1,9 +1,11 @@
-import mongoose from "mongoose";
+import mongoose, { Document } from "mongoose";
+
+type IFaction = { name: string } & Document;
 
 const factionSchema = new mongoose.Schema({
-  name: String,
+  name: { type: String, required: true },
 });
 
-const Faction = mongoose.model("Faction", factionSchema);
+const Faction = mongoose.model<IFaction>("Faction", factionSchema);
 
-export { Faction };
+export { Faction, IFaction };
