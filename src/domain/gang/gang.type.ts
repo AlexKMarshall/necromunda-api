@@ -8,10 +8,10 @@ export type Gang = {
 };
 
 export type GangInboundDTO = Omit<Gang, "_id" | "faction"> & {
-  factionId: string;
+  faction: string;
 };
 
 export const gangValidationSchema = Joi.object({
   name: Joi.string().required(),
-  factionId: Joi.string().required(),
+  faction: Joi.string().required(),
 });
