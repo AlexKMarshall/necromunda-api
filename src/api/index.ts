@@ -1,7 +1,7 @@
 import { Router } from "express";
 import user from "./routes/user";
-import faction from "./routes/faction";
-import gang from "./routes/gang";
+import faction from "../domain/faction/faction.routes";
+import gang from "../domain/gang/gang.routes";
 
 const routes = () => {
   const app = Router();
