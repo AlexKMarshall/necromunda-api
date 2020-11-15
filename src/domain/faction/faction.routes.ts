@@ -3,12 +3,11 @@ import { RequestWithBody } from "../../common/types/request";
 import { factionValidationSchema, FactionInboundDTO } from "./faction.type";
 import { validateBody } from "../../common/middleware/bodyValidator";
 import * as factionService from "./faction.service";
-import { validateJwt } from "../../common/middleware/jwtValidator";
 
 const route = Router();
 
 export default (app: Router) => {
-  app.use("/factions", validateJwt, route);
+  app.use("/factions", route);
 
   route.get("/", getFactions);
   route.post("/", validateBody(factionValidationSchema), postFaction);
