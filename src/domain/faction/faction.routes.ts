@@ -1,14 +1,14 @@
 import { Request, Response, Router } from "express";
 import { RequestWithBody } from "../../types/request";
-import { FactionModel } from "./faction.model";
 import { factionValidationSchema, FactionInboundDTO } from "./faction.type";
 import { validateBody } from "../../middleware/bodyValidator.middleware";
 import * as factionService from "./faction.service";
+import { validateJwt } from "../../middleware/jwtValidator";
 
 const route = Router();
 
 export default (app: Router) => {
-  app.use("/factions", route);
+  app.use("/factions", validateJwt, route);
 
   route.get("/", getFactions);
   route.post("/", validateBody(factionValidationSchema), postFaction);

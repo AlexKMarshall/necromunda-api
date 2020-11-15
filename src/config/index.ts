@@ -14,3 +14,8 @@ export const databaseUrl = validate("DATABASE_URI");
 export const api = {
   prefix: validate("API_PREFIX"),
 };
+export const auth = {
+  jwksUri: validate("JWKS_URI"),
+  audience: validate("AUDIENCE"),
+  issuer: validate("ISSUER"),
+};
