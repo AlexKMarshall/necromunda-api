@@ -1,8 +1,8 @@
 import { Router, Request, Response } from "express";
-import { RequestWithBody } from "../../types/request";
+import { RequestWithBody } from "../../common/types/request";
 import * as gangService from "./gang.service";
 import { GangInboundDTO, gangValidationSchema } from "./gang.type";
-import { validateBody } from "../../middleware/bodyValidator.middleware";
+import { validateBody } from "../../common/middleware/bodyValidator";
 
 const route = Router();
 

@@ -1,6 +1,6 @@
 import Joi from "joi";
 import { Request, Response, NextFunction } from "express";
-import { BadRequestException } from "../common/exceptions/httpException";
+import { BadRequestException } from "../exceptions/httpException";
 
 export function validateBody(schema: Joi.ObjectSchema<any>) {
   return function (req: Request, res: Response, next: NextFunction) {

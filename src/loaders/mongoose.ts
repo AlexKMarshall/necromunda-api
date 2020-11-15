@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { databaseUrl } from "../config";
 
 const defaultMongooseOptions = {
   useNewUrlParser: true,
@@ -15,7 +14,7 @@ const loader = async ({
   databaseUrl,
   mongooseOptions = defaultMongooseOptions,
 }: LoaderProps) => {
-  const connection = await mongoose.connect(databaseUrl, mongooseOptions);
+  await mongoose.connect(databaseUrl, mongooseOptions);
 };
 
 export default loader;

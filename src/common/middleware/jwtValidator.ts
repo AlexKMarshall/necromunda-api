@@ -1,6 +1,6 @@
 import jwt from "express-jwt";
 import jwksRsa from "jwks-rsa";
-import { auth as authConfig } from "../config";
+import { auth as authConfig } from "../../config";
 
 // Authorization middleware. When used, the
 // Access Token must exist and be verified against

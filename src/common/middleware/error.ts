@@ -1,8 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import {
-  HttpException,
-  NotFoundException,
-} from "../common/exceptions/httpException";
+import { HttpException, NotFoundException } from "../exceptions/httpException";
 
 function notFoundHandler(req: Request, res: Response, next: NextFunction) {
   const err = new NotFoundException();

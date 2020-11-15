@@ -1,9 +1,9 @@
 import { Request, Response, Router } from "express";
-import { RequestWithBody } from "../../types/request";
+import { RequestWithBody } from "../../common/types/request";
 import { factionValidationSchema, FactionInboundDTO } from "./faction.type";
-import { validateBody } from "../../middleware/bodyValidator.middleware";
+import { validateBody } from "../../common/middleware/bodyValidator";
 import * as factionService from "./faction.service";
-import { validateJwt } from "../../middleware/jwtValidator";
+import { validateJwt } from "../../common/middleware/jwtValidator";
 
 const route = Router();
 
