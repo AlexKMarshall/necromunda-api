@@ -4,15 +4,26 @@ import { BadRequestException } from "../exceptions/httpException";
 
 export function validateBody(schema: Joi.ObjectSchema<any>) {
   return function (req: Request, res: Response, next: NextFunction) {
-    const { error } = schema.validate(req.body);
+    const { error } = validateObject(schema, req.body);
     if (error) {
-      next(
-        new BadRequestException(
-          `Invalid data: ${error.details.map((x) => x.message).join(",")}`
-        )
-      );
+      throw new BadRequestException(error.message);
     } else {
       next();
     }
   };
+}
+
+export function validateObject(schema: Joi.ObjectSchema, object: any) {
+  const result = schema.validate(object);
+  if (result.error) {
+    return {
+      error: {
+        message: `Invalid data: ${result.error.details
+          .map((x) => x.message)
+          .join(",")}`,
+      },
+    };
+  } else {
+    return result;
+  }
 }
