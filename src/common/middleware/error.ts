@@ -10,7 +10,8 @@ function errorMiddleware(
   error: HttpException,
   req: Request,
   res: Response,
-  next: NextFunction
+  // eslint-disable-next-line no-unused-vars
+  _next: NextFunction
 ) {
   const status = error.status || 500;
   const message = error.message || "something went wrong";
