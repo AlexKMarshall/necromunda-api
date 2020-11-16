@@ -27,3 +27,6 @@ jobs:
     - run: yarn install
     - run: yarn run build
     - run: yarn test --coverage --watchAll=false
+    - uses: codecov/codecov-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
