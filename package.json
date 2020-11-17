@@ -51,5 +51,11 @@
     "hooks": {
       "pre-commit": "pretty-quick --staged"
     }
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "test/*",
+      "**/__tests__/*"
+    ]
   }
 }

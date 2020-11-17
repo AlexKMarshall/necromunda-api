@@ -7,7 +7,7 @@ export async function findAllFactions() {
 }
 
 export async function createFaction(factionDTO: FactionInboundDTO) {
-  const existingFaction = await FactionModel.find({ name: factionDTO.name });
+  const existingFaction = await FactionModel.findOne({ name: factionDTO.name });
   if (existingFaction) {
     throw new ConflictException(`Name "${factionDTO.name}" already exists`);
   }
