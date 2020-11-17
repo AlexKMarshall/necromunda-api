@@ -10,10 +10,9 @@
     "baseUrl": ".",
     "paths": {
       // "*": ["node_modules/*"],
-      "express": ["./@types/*"],
-      "@config/*": ["./src/config/*"],
-      "@common/*": ["./src/common/*"]
+      // "express": ["./@types/*"]
     },
+    "typeRoots": ["@types", "node_modules/@types"],
     "strict": true
   },
   "include": ["src/**/*", "@types"],
