@@ -19,3 +19,15 @@ export class BadRequestException extends HttpException {
     super(400, message);
   }
 }
+
+export class UnauthorizedException extends HttpException {
+  constructor(message = "Unauthorized Request") {
+    super(401, message);
+  }
+}
+
+export class ConflictException extends HttpException {
+  constructor(message = "Conflicting Request") {
+    super(409, message);
+  }
+}

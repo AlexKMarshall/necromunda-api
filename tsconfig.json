@@ -9,9 +9,12 @@
     "outDir": "dist",
     "baseUrl": ".",
     "paths": {
-      "*": ["node_modules/*"]
+      // "*": ["node_modules/*"],
+      // "express": ["./@types/*"]
     },
+    "typeRoots": ["@types", "node_modules/@types"],
     "strict": true
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "@types"],
+  "skipLibCheck": true
 }

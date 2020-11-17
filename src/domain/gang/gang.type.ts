@@ -5,6 +5,7 @@ export type Gang = {
   _id?: string;
   name: string;
   faction: Faction;
+  userId: string;
 };
 
 export type GangInboundDTO = Omit<Gang, "_id" | "faction"> & {

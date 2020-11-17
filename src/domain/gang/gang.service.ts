@@ -1,8 +1,8 @@
 import { GangModel } from "./gang.model";
 import { GangInboundDTO } from "./gang.type";
 
-export async function findAllGangs() {
-  return await GangModel.find().populate("faction").exec();
+export async function findGangsByUser(userId: string) {
+  return await GangModel.find({ userId }).populate("faction").exec();
 }
 
 export function findGangById(id: string) {
