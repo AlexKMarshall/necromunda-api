@@ -14,6 +14,7 @@ export default (app: Router) => {
 };
 
 async function getAllGangs(req: Request, res: Response) {
+  // logger.info(req.user);
   const gangs = await gangService.findAllGangs();
   res.json({ gangs }).status(200);
 }
