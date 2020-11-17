@@ -1,4 +1,4 @@
-import { Router, Express, Response, NextFunction } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import { RequestWithBody } from "../../common/types/request";
 import * as gangService from "./gang.service";
 import { GangInboundDTO, gangValidationSchema } from "./gang.type";
@@ -15,7 +15,7 @@ export default (app: Router) => {
 };
 
 async function getAllGangsForUser(
-  req: Express.Request,
+  req: Request,
   res: Response,
   next: NextFunction
 ) {
@@ -29,10 +29,20 @@ async function getAllGangsForUser(
   res.json({ gangs }).status(200);
 }
 
-async function postGang(req: RequestWithBody<GangInboundDTO>, res: Response) {
+async function postGang(
+  req: RequestWithBody<GangInboundDTO>,
+  res: Response,
+  next: NextFunction
+) {
   const gangDTO = req.body;
+  const userId = req.user?.sub;
+  if (!userId) {
+    // Shouldn't hit this as auth0 should always give us a userID
+    next(new UnauthorizedException("User ID missing"));
+    return;
+  }
 
-  const newGang = await gangService.createGang(gangDTO);
+  const newGang = await gangService.createGang({ ...gangDTO, userId });
 
   res.json(newGang).status(201);
 }
