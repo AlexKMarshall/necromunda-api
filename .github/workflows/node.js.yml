@@ -36,6 +36,9 @@ jobs:
           PORT: 8000
           DATABASE_URI: mongodb://localhost:27017/necro
           API_PREFIX: /api
+          JWKS_URI: https://dev-g7dchufc.eu.auth0.com/.well-known/jwks.json
+          AUDIENCE: https://necromunda/api
+          ISSUER: https://dev-g7dchufc.eu.auth0.com/
       - uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
