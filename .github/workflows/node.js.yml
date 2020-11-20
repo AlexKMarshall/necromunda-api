@@ -32,6 +32,10 @@ jobs:
       - run: yarn install
       - run: yarn run build
       - run: yarn test --coverage --watchAll=false
+        env:
+          PORT: 8000
+          DATABASE_URI: mongodb://localhost:27017/necro
+          API_PREFIX: /api
       - uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
