@@ -14,6 +14,7 @@ describe("factionService", () => {
     const savedFaction = await factionService.createFaction({ name });
 
     expect(savedFaction.name).toEqual(name);
+    expect(savedFaction._id.toString()).toEqual(expect.any(String));
   });
   test("createFaction throws error if faction name already exists", async () => {
     const existingName = "FAKE_FACTION";
@@ -25,6 +26,22 @@ describe("factionService", () => {
       .catch((e) => e);
     expect(error).toMatchInlineSnapshot(
       `[Error: Name "FAKE_FACTION" already exists]`
+    );
+  });
+  test("find all factions returns factions", async () => {
+    const names = ["name 1", "name 2"].sort();
+
+    await FactionModel.create({ name: names[0] });
+    await FactionModel.create({ name: names[1] });
+
+    const returnedFactions = await factionService.findAllFactions();
+
+    expect(returnedFactions).toHaveLength(2);
+    expect(returnedFactions).toContainEqual(
+      expect.objectContaining({ name: names[0] })
+    );
+    expect(returnedFactions).toContainEqual(
+      expect.objectContaining({ name: names[1] })
     );
   });
 });
