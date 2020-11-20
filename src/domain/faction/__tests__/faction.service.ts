@@ -1,44 +1,30 @@
-import { mocked } from "ts-jest/utils";
-import { FactionModel } from "../faction.model";
 import * as factionService from "../faction.service";
+import * as dbUtils from "../../../test/db-utils";
+import { FactionModel } from "../faction.model";
 
-jest.mock("../faction.model");
+beforeAll(dbUtils.connectMongoose);
+afterAll(dbUtils.disconnectMongoose);
 
-const MockFactionModel = mocked(FactionModel, true);
-
-beforeEach(() => {
-  jest.resetAllMocks();
-});
+beforeEach(dbUtils.clearDatabase);
 
 describe("factionService", () => {
   test("createFaction returns new faction", async () => {
-    const faction: any = { name: "My Faction", _id: "abc123" };
+    const name: string = "My Faction";
 
-    MockFactionModel.findOne.mockResolvedValueOnce(null);
+    const savedFaction = await factionService.createFaction({ name });
 
-    await factionService.createFaction(faction);
-
-    expect(MockFactionModel.findOne).toHaveBeenCalledTimes(1);
-    expect(MockFactionModel.findOne).toHaveBeenCalledWith({
-      name: faction.name,
-    });
-    expect(MockFactionModel).toHaveBeenCalledTimes(1);
-    const mockFactionInstance = MockFactionModel.mock.instances[0];
-    expect(mockFactionInstance.save).toHaveBeenCalledTimes(1);
-
-    // TODO, how to test that the thing was returned?
+    expect(savedFaction.name).toEqual(name);
   });
   test("createFaction throws error if faction name already exists", async () => {
-    const faction: any = { name: "FAKE_FACTION_NAME" };
-    MockFactionModel.findOne.mockResolvedValueOnce(faction);
+    const existingName = "FAKE_FACTION";
+    const existingFaction = new FactionModel({ name: existingName });
+    await existingFaction.save();
 
-    const error = await factionService.createFaction(faction).catch((e) => e);
+    const error = await factionService
+      .createFaction({ name: existingName })
+      .catch((e) => e);
     expect(error).toMatchInlineSnapshot(
-      `[Error: Name "FAKE_FACTION_NAME" already exists]`
+      `[Error: Name "FAKE_FACTION" already exists]`
     );
-    expect(MockFactionModel.findOne).toHaveBeenCalledTimes(1);
-    expect(MockFactionModel.findOne).toHaveBeenCalledWith({
-      name: faction.name,
-    });
   });
 });

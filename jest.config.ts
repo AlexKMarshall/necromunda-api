@@ -12,4 +12,5 @@ export default {
   collectCoverageFrom: ["**/src/**/*.[jt]s", "!src/test/**/*.*"],
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
   modulePathIgnorePatterns: ["<rootDir>/dist/", "<rootDir>/src/build/"],
+  setupFiles: ["./src/test/setup-env.ts"],
 };
