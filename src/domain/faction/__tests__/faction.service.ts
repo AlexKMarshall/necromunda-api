@@ -16,7 +16,7 @@ describe("factionService", () => {
     const factionObj = savedFaction.toJSON();
     
     expect(factionObj.name).toBe(name)
-    expect(factionObj._id).toEqual(expect.any(String))
+    expect(factionObj._id.toString()).toEqual(expect.any(String))
 
 //     expect(savedFaction.toJSON()).toMatchObject({
 //       name,
