@@ -20,7 +20,8 @@
     "mongoose": "^5.10.13",
     "morgan": "^1.10.0",
     "ts-node": "^9.0.0",
-    "winston": "^3.3.3"
+    "winston": "^3.3.3",
+    "zod": "^1.11.10"
   },
   "devDependencies": {
     "@types/cors": "^2.8.8",
