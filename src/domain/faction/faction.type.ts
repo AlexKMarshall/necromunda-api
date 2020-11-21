@@ -1,4 +1,3 @@
-import Joi from "joi";
 import * as z from "zod";
 
 export const factionSchema = z.object({
@@ -7,9 +6,5 @@ export const factionSchema = z.object({
 });
 
 export type Faction = z.infer<typeof factionSchema>;
-export const noIdFactionSchema = factionSchema.omit({ _id: true });
-export type NoIdFaction = z.infer<typeof noIdFactionSchema>;
-
-export const factionValidationSchema = Joi.object({
-  name: Joi.string().required(),
-});
+export const factionInboundSchema = factionSchema.omit({ _id: true });
+export type FactionInbound = z.infer<typeof factionInboundSchema>;

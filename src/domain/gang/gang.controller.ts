@@ -25,21 +25,21 @@ export async function postGang(
   res: Response,
   next: NextFunction
 ) {
-  const parseGangResult = parseGang(req.body);
   const parseUserResult = parseUser(req.user);
-  if (!parseGangResult.success) {
-    return next(parseGangResult.error);
-  }
   if (!parseUserResult.success) {
     return next(parseUserResult.error);
   }
-  const { data: gang } = parseGangResult;
   const {
     data: { sub: userId },
   } = parseUserResult;
+  const parseGangResult = parseGang({ ...req.body, userId });
+  if (!parseGangResult.success) {
+    return next(parseGangResult.error);
+  }
+  const { data: gang } = parseGangResult;
 
   try {
-    const newGang = await gangService.createGang({ ...gang, userId });
+    const newGang = await gangService.createGang({ ...gang });
 
     res.json(newGang).status(201);
   } catch (e) {

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { noIdFactionSchema } from "./faction.type";
+import { factionInboundSchema } from "./faction.type";
 import * as factionService from "./faction.service";
 
 export async function getFactions(res: Response) {
@@ -28,5 +28,5 @@ export async function postFaction(
 }
 
 function parseFaction(possibleFaction: unknown) {
-  return noIdFactionSchema.safeParse(possibleFaction);
+  return factionInboundSchema.safeParse(possibleFaction);
 }
