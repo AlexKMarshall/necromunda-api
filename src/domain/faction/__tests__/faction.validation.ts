@@ -1,5 +1,4 @@
-import { factionValidationSchema } from "../faction.type";
-import { validateObject } from "../../../common/middleware/bodyValidator";
+import { factionInboundSchema } from "../faction.type";
 
 describe("faction input validation", () => {
   test("a valid faction returns no error", () => {
@@ -7,20 +6,27 @@ describe("faction input validation", () => {
       name: "A name",
     };
 
-    const result = validateObject(factionValidationSchema, faction);
-    expect(result.error).toBe(undefined);
-    expect(result).toEqual({ value: faction });
+    const result = factionInboundSchema.safeParse(faction);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data).toEqual(faction);
+    }
   });
 
   test("faction without a name returns error", () => {
     const faction = {};
 
-    const result = validateObject(factionValidationSchema, faction);
+    const result = factionInboundSchema.safeParse(faction);
 
-    expect(result.error).toMatchInlineSnapshot(`
-      Object {
-        "message": "Invalid data: \\"name\\" is required",
-      }
-    `);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error).toMatchInlineSnapshot(`
+        [Error: 1 validation issue(s)
+
+          Issue #0: invalid_type at name
+          Required
+        ]
+      `);
+    }
   });
 });

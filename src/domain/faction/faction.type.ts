@@ -1,15 +1,10 @@
-import Joi from "joi";
-import { Document } from "mongoose";
+import * as z from "zod";
 
-export type Faction = {
-  _id: string;
-  name: string;
-};
-
-export type FactionInboundDTO = Omit<Faction, "_id">;
-
-export type FactionDocument = Faction & Document;
-
-export const factionValidationSchema = Joi.object({
-  name: Joi.string().required(),
+export const factionSchema = z.object({
+  name: z.string(),
+  _id: z.string().uuid(),
 });
+
+export type Faction = z.infer<typeof factionSchema>;
+export const factionInboundSchema = factionSchema.omit({ _id: true });
+export type FactionInbound = z.infer<typeof factionInboundSchema>;

@@ -1,18 +1,15 @@
-import Joi from "joi";
-import { Faction } from "../faction/faction.type";
+import * as z from "zod";
+import { factionSchema } from "../faction/faction.type";
 
-export type Gang = {
-  _id?: string;
-  name: string;
-  faction: Faction;
-  userId: string;
-};
-
-export type GangInboundDTO = Omit<Gang, "_id" | "faction"> & {
-  faction: string;
-};
-
-export const gangValidationSchema = Joi.object({
-  name: Joi.string().required(),
-  faction: Joi.string().required(),
+export const gangSchema = z.object({
+  name: z.string(),
+  userId: z.string(),
+  faction: factionSchema,
+  _id: z.string(),
 });
+
+export type Gang = z.infer<typeof gangSchema>;
+export const gangInboundSchema = gangSchema
+  .omit({ _id: true })
+  .extend({ faction: z.string() });
+export type GangInboundDTO = z.infer<typeof gangInboundSchema>;
