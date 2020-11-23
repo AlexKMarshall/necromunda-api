@@ -43,7 +43,9 @@ describe("gangService", () => {
       faction: faction._id,
     });
 
-    const returnedGangs = await gangService.findGangsByUser(myGang.userId);
+    const returnedGangs = await gangService.inpureFindGangsByUser(
+      myGang.userId
+    );
 
     expect(returnedGangs).toHaveLength(1);
     expect(returnedGangs).toContainEqual(

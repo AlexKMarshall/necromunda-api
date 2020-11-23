@@ -32,7 +32,7 @@ async function impureCreateFaction(
   }
 }
 
-export function createEitherFaction(
+export function createFaction(
   factionDTO: FactionInbound
 ): TE.TaskEither<UnexpectedDatabaseError, Faction> {
   return TE.tryCatch(
