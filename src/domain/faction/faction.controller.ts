@@ -1,32 +1,58 @@
 import { NextFunction, Request, Response } from "express";
-import { factionInboundSchema } from "./faction.type";
+import { FactionInbound, factionInboundSchema } from "./faction.type";
 import * as factionService from "./faction.service";
+import * as E from "fp-ts/lib/Either";
+import * as TE from "fp-ts/lib/TaskEither";
+import { ZodError } from "zod";
+import { pipe } from "fp-ts/lib/function";
+import logger from "../../loaders/logger";
 
-export async function getFactions(res: Response) {
-  const factions = await factionService.findAllFactions();
-  res.json({ factions }).status(200);
-}
-
-export async function postFaction(
+export async function handleGetFactions(
   req: Request,
   res: Response,
   next: NextFunction
 ) {
-  const parsedResult = parseFaction(req.body);
-  if (!parsedResult.success) {
-    next(parsedResult.error);
-  } else {
-    const { data: faction } = parsedResult;
+  const trigger = getFactions();
 
-    try {
-      const newFaction = await factionService.createFaction(faction);
-      res.json(newFaction).status(201);
-    } catch (error) {
-      next(error);
-    }
+  const result = await trigger();
+
+  if (E.isLeft(result)) {
+    logger.error(result.left);
+    return next(result.left);
+  } else {
+    res.json(result.right).status(200);
   }
 }
 
-function parseFaction(possibleFaction: unknown) {
-  return factionInboundSchema.safeParse(possibleFaction);
+export const getFactions = factionService.findAllFactions;
+
+export async function handlePostFaction(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const trigger = postFaction(req.body);
+
+  const result = await trigger();
+
+  if (E.isLeft(result)) {
+    logger.error(result.left);
+    return next(result.left);
+  } else {
+    res.json(result.right).status(201);
+  }
+}
+
+export function postFaction(faction: unknown) {
+  return pipe(
+    faction,
+    parseFaction,
+    TE.fromEither,
+    TE.chainW(factionService.createEitherFaction)
+  );
+}
+
+function parseFaction(faction: unknown): E.Either<ZodError, FactionInbound> {
+  const result = factionInboundSchema.safeParse(faction);
+  return result.success ? E.right(result.data) : E.left(result.error);
 }

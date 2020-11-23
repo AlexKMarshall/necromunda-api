@@ -12,11 +12,11 @@ describe("factionService", () => {
     const name: string = "My Faction";
 
     const savedFaction = await factionService.createFaction({ name });
-    
+
     const factionObj = savedFaction.toJSON();
-    
-    expect(factionObj.name).toBe(name)
-    expect(factionObj._id.toString()).toEqual(expect.any(String))
+
+    expect(factionObj.name).toBe(name);
+    expect(factionObj._id.toString()).toEqual(expect.any(String));
   });
   test("createFaction throws error if faction name already exists", async () => {
     const existingName = "FAKE_FACTION";
@@ -36,7 +36,7 @@ describe("factionService", () => {
     await FactionModel.create({ name: names[0] });
     await FactionModel.create({ name: names[1] });
 
-    const returnedFactions = await factionService.findAllFactions();
+    const returnedFactions = await factionService.unsafeFindAllFactions();
 
     expect(returnedFactions).toHaveLength(2);
     expect(returnedFactions).toContainEqual(
