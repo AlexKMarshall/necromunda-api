@@ -3,7 +3,7 @@ import { Gang, GangInbound } from "./gang.type";
 import * as TE from "fp-ts/lib/TaskEither";
 import { UnexpectedDatabaseError } from "../faction/faction.service";
 
-export async function inpureFindGangsByUser(userId: string) {
+async function inpureFindGangsByUser(userId: string) {
   try {
     return await GangModel.find({ userId }).populate("faction").exec();
   } catch (reason) {
@@ -20,11 +20,7 @@ export function findGangsByUser(
   );
 }
 
-export function findGangById(id: string) {
-  return GangModel.findById(id).populate("faction").exec();
-}
-
-export async function impureCreateGang(gangDTO: GangInbound) {
+async function impureCreateGang(gangDTO: GangInbound) {
   try {
     const newGang = new GangModel(gangDTO);
     await newGang.save();
