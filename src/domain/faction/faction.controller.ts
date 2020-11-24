@@ -4,7 +4,7 @@ import * as factionService from "./faction.service";
 import * as E from "fp-ts/lib/Either";
 import * as TE from "fp-ts/lib/TaskEither";
 import { ZodError } from "zod";
-import { pipe } from "fp-ts/lib/function";
+import { flow } from "fp-ts/lib/function";
 import logger from "../../loaders/logger";
 
 export async function handleGetFactions(
@@ -43,14 +43,11 @@ export async function handlePostFaction(
   }
 }
 
-export function postFaction(faction: unknown) {
-  return pipe(
-    faction,
-    parseFaction,
-    TE.fromEither,
-    TE.chainW(factionService.createEitherFaction)
-  );
-}
+export const postFaction = flow(
+  parseFaction,
+  TE.fromEither,
+  TE.chainW(factionService.createFaction)
+);
 
 function parseFaction(faction: unknown): E.Either<ZodError, FactionInbound> {
   const result = factionInboundSchema.safeParse(faction);

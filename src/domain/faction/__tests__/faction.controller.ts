@@ -5,7 +5,7 @@ import { FactionModel } from "../faction.model";
 import { FactionInbound } from "../faction.type";
 import faker from "faker";
 
-function buildFactionInbound(
+export function buildFactionInbound(
   overrides?: Partial<FactionInbound>
 ): FactionInbound {
   return {

@@ -6,6 +6,6 @@ const route = Router();
 export default (app: Router) => {
   app.use("/gangs", route);
 
-  route.get("/", gangController.getAllGangsForUser);
-  route.post("/", gangController.postGang);
+  route.get("/", gangController.handleGetGangs);
+  route.post("/", gangController.handlePostGang);
 };
