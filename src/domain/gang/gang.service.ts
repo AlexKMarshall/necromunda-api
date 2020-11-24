@@ -24,8 +24,21 @@ export function findGangById(id: string) {
   return GangModel.findById(id).populate("faction").exec();
 }
 
-export async function createGang(gangDTO: GangInbound) {
-  const newGang = new GangModel(gangDTO);
-  await newGang.save();
-  return newGang.populate("faction").execPopulate();
+export async function impureCreateGang(gangDTO: GangInbound) {
+  try {
+    const newGang = new GangModel(gangDTO);
+    await newGang.save();
+    return newGang.populate("faction").execPopulate();
+  } catch (reason) {
+    return Promise.reject(reason);
+  }
+}
+
+export function createGang(
+  gang: GangInbound
+): TE.TaskEither<UnexpectedDatabaseError, Gang> {
+  return TE.tryCatch(
+    () => impureCreateGang(gang),
+    (reason) => UnexpectedDatabaseError.of(reason)
+  );
 }

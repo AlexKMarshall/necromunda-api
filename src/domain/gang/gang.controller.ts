@@ -5,7 +5,7 @@ import { User, userSchema } from "../../common/types/user";
 import * as E from "fp-ts/lib/Either";
 import * as TE from "fp-ts/lib/TaskEither";
 import { ZodError } from "zod";
-import { flow } from "fp-ts/lib/function";
+import { flow, pipe } from "fp-ts/lib/function";
 import logger from "../../loaders/logger";
 
 export async function handleGetGangs(
@@ -24,38 +24,36 @@ export async function handleGetGangs(
   }
 }
 
-export async function postGang(
+export async function handlePostGang(
   req: Request,
   res: Response,
   next: NextFunction
 ) {
-  const parseUserResult = parseUser(req.user);
-  if (E.isLeft(parseUserResult)) {
-    return next(parseUserResult.left);
-  }
-  const {
-    data: { sub: userId },
-  } = parseUserResult.right;
-  const parseGangResult = parseGang({ ...req.body, userId });
-  if (E.isLeft(parseGangResult)) {
-    return next(parseGangResult.left);
-  }
-  const { right: gang } = parseGangResult;
+  const trigger = postGang(req.user, req.body);
+  const result = await trigger();
 
-  try {
-    const newGang = await gangService.createGang({ ...gang });
-
-    res.json(newGang).status(201);
-  } catch (e) {
-    next(e);
+  if (E.isLeft(result)) {
+    logger.error(result.left);
+    return next(result.left);
+  } else {
+    res.json(result.right).status(200);
   }
 }
-
 export const getGangs = flow(
   parseUser,
   TE.fromEither,
   TE.chainW(({ sub: userId }) => gangService.findGangsByUser(userId))
 );
+
+export function postGang<T extends {}>(user: unknown, partialGang: T) {
+  return pipe(
+    user,
+    parseUser,
+    E.chain(({ sub: userId }) => parseGang({ ...partialGang, userId })),
+    TE.fromEither,
+    TE.chainW(gangService.createGang)
+  );
+}
 
 function parseGang(gang: unknown): E.Either<ZodError, GangInbound> {
   const result = gangInboundSchema.safeParse(gang);

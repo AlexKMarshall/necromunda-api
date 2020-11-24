@@ -16,7 +16,7 @@ describe("gangService", () => {
     const gangName = "My Gang";
     const userId = "abc";
 
-    const savedGang = await gangService.createGang({
+    const savedGang = await gangService.impureCreateGang({
       name: gangName,
       faction: faction._id,
       userId,
