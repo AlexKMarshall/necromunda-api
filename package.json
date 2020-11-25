@@ -6,7 +6,7 @@
     "build": "tsc",
     "dev": "nodemon -x ts-node --files src/index.ts",
     "tsnode": "ts-node --files src/index.ts",
-    "test": "jest"
+    "test": "jest --forceExit --detectOpenHandles"
   },
   "license": "MIT",
   "dependencies": {

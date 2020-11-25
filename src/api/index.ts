@@ -6,9 +6,6 @@ import { validateJwt } from "../common/middleware/jwtValidator";
 
 const routes = () => {
   const app = Router();
-  app.get("/hello", (req, res) => {
-    res.json({ message: "Hello tests" }).status(200);
-  });
   // app.use(validateJwt);
   user(app);
   faction(app);

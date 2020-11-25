@@ -5,7 +5,7 @@ import { GangModel } from "../gang.model";
 import { FactionModel } from "../../faction/faction.model";
 import { GangInbound } from "../gang.type";
 import faker from "faker";
-import { buildFactionInbound } from "../../faction/__tests__/faction.controller";
+import { buildFactionInbound } from "../../../test/generate";
 import { User } from "../../../common/types/user";
 import { removeProp } from "../../../common/utils";
 
