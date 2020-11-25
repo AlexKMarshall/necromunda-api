@@ -20,7 +20,8 @@ export async function handleGetFactions(
     logger.error(result.left);
     return next(result.left);
   } else {
-    res.json(result.right).status(200);
+    res.status(200);
+    res.json(result.right);
   }
 }
 
@@ -39,7 +40,8 @@ export async function handlePostFaction(
     logger.error(result.left);
     return next(result.left);
   } else {
-    res.json(result.right).status(201);
+    res.status(201);
+    res.json(result.right);
   }
 }
 

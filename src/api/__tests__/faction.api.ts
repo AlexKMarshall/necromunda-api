@@ -1,6 +1,7 @@
 import supertest from "supertest";
 import { buildApp } from "../../app";
 import { clearDatabase } from "../../test/db-utils";
+import { buildFactionInbound } from "../../test/generate";
 
 let request: supertest.SuperTest<supertest.Test>;
 
@@ -14,8 +15,17 @@ beforeEach(async () => {
   await clearDatabase();
 });
 
-test("it should make a request of the endpoint", async () => {
-  const response = await request.get("/api/factions");
+test("Create and read faction through api", async () => {
+  const faction = buildFactionInbound();
 
-  expect(response.status).toBe(200);
+  const postResponse = await request.post("/api/factions").send(faction);
+
+  expect(postResponse.status).toBe(201);
+  expect(postResponse.body).toEqual(expect.objectContaining(faction));
+
+  const getResponse = await request.get("/api/factions");
+
+  expect(getResponse.status).toBe(200);
+  expect(getResponse.body).toContainEqual(expect.objectContaining(faction));
+  expect(getResponse.body).toHaveLength(1);
 });

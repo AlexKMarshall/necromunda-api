@@ -14,7 +14,6 @@ const loader = async ({
   databaseUrl = process.env.DATABASE_URI || "",
   mongooseOptions = defaultMongooseOptions,
 }: LoaderProps = {}) => {
-  console.log(databaseUrl);
   await mongoose.connect(databaseUrl, mongooseOptions);
 };
 
