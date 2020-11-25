@@ -1,16 +1,9 @@
-import express from "express";
-import loaders from "./loaders";
-import logger from "./loaders/logger";
-import { port } from "./config";
+import { buildApp } from "./app";
+import { startServer } from "./start";
 
-const startServer = async () => {
-  const app = express();
+async function start() {
+  const server = await buildApp();
+  await startServer(server);
+}
 
-  await loaders({ expressApp: app });
-
-  app.listen(port, () => {
-    logger.info(`server listening on http://localhost:${port} 🚀`);
-  });
-};
-
-startServer();
+start();

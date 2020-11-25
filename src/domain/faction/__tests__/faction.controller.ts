@@ -2,17 +2,8 @@ import * as factionController from "../faction.controller";
 import * as dbUtils from "../../../test/db-utils";
 import * as E from "fp-ts/lib/Either";
 import { FactionModel } from "../faction.model";
-import { FactionInbound } from "../faction.type";
-import faker from "faker";
 
-export function buildFactionInbound(
-  overrides?: Partial<FactionInbound>
-): FactionInbound {
-  return {
-    name: faker.company.companyName(),
-    ...overrides,
-  };
-}
+import { buildFactionInbound } from "../../../test/generate";
 
 beforeAll(dbUtils.connectMongoose);
 afterAll(dbUtils.disconnectMongoose);

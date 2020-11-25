@@ -6,7 +6,7 @@ import { validateJwt } from "../common/middleware/jwtValidator";
 
 const routes = () => {
   const app = Router();
-  app.use(validateJwt);
+  // app.use(validateJwt);
   user(app);
   faction(app);
   gang(app);

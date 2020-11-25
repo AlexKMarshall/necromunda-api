@@ -2,21 +2,14 @@ import * as gangController from "../gang.controller";
 import * as dbUtils from "../../../test/db-utils";
 import * as E from "fp-ts/lib/Either";
 import { GangModel } from "../gang.model";
-import { FactionModel } from "../../faction/faction.model";
-import { GangInbound } from "../gang.type";
 import faker from "faker";
-import { buildFactionInbound } from "../../faction/__tests__/faction.controller";
+import {
+  buildFactionInbound,
+  buildGangInbound,
+  insertFactions,
+} from "../../../test/generate";
 import { User } from "../../../common/types/user";
 import { removeProp } from "../../../common/utils";
-
-function buildGangInbound(overrides?: Partial<GangInbound>): GangInbound {
-  return {
-    name: faker.company.companyName(),
-    userId: faker.internet.userName(),
-    faction: faker.random.uuid(),
-    ...overrides,
-  };
-}
 
 function buildUser(overrides?: Partial<User>): User {
   return {
@@ -32,7 +25,7 @@ beforeEach(dbUtils.clearDatabase);
 
 describe("gangController", () => {
   test("postGang creates a gang", async () => {
-    const faction = await FactionModel.create(buildFactionInbound());
+    const [faction] = await insertFactions([buildFactionInbound()]);
     const gang = buildGangInbound({ faction: faction._id.toString() });
     const gangWithoutUser = removeProp("userId", gang);
     const user = buildUser();
@@ -50,7 +43,8 @@ describe("gangController", () => {
     }
   });
   test("getGangs returns gangs for that userId", async () => {
-    const faction = await FactionModel.create(buildFactionInbound());
+    const [faction] = await insertFactions([buildFactionInbound()]);
+
     const [myUser, otherUser] = [buildUser(), buildUser()];
     const [myGang, otherGang] = [
       buildGangInbound({ userId: myUser.sub, faction: faction._id }) as any,

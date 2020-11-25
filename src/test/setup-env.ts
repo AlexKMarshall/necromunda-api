@@ -1,5 +1,6 @@
 import { databaseUrl } from "../config";
 
-const testDBUrl = `${databaseUrl}-${process.env.JEST_WORKER_ID}`;
-
-process.env.DATABASE_URI = testDBUrl;
+const workerId = process.env.JEST_WORKER_ID;
+const port = `800${workerId}`;
+process.env.PORT = port;
+process.env.DATABASE_URI = `${databaseUrl}-${workerId}`;

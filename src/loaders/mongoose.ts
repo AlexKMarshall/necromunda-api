@@ -6,14 +6,14 @@ const defaultMongooseOptions = {
 };
 
 type LoaderProps = {
-  databaseUrl: string;
+  databaseUrl?: string;
   mongooseOptions?: typeof defaultMongooseOptions;
 };
 
 const loader = async ({
-  databaseUrl,
+  databaseUrl = process.env.DATABASE_URI || "",
   mongooseOptions = defaultMongooseOptions,
-}: LoaderProps) => {
+}: LoaderProps = {}) => {
   await mongoose.connect(databaseUrl, mongooseOptions);
 };
 
