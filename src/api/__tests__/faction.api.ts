@@ -1,12 +1,28 @@
 import supertest from "supertest";
 import { buildApp } from "../../app";
 import { clearDatabase } from "../../test/db-utils";
-import { buildFactionInbound } from "../../test/generate";
+import { buildFactionInbound, buildUser } from "../../test/generate";
+import { validateJwt } from "../../common/middleware/jwtValidator";
+import { mocked } from "ts-jest/utils";
+import { Request, Response, NextFunction } from "express";
+
+jest.mock("../../common/middleware/jwtValidator");
+
+const mockValidateJwt = mocked(validateJwt, true);
 
 let request: supertest.SuperTest<supertest.Test>;
 
 beforeAll(async () => {
   const app = await buildApp();
+
+  const user = buildUser();
+
+  mockValidateJwt.mockImplementation(
+    (req: Request, res: Response, next: NextFunction) => {
+      req.user = user;
+      next();
+    }
+  );
 
   request = supertest(app);
 });
