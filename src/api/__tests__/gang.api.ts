@@ -34,7 +34,6 @@ beforeAll(async () => {
 beforeEach(async () => {
   await clearDatabase();
 });
-// switched off until I can mock the express-jwt action
 
 test("Create and read gang through api", async () => {
   const [faction] = await insertFactions([buildFactionInbound()]);
