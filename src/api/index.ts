@@ -3,10 +3,11 @@ import user from "./routes/user";
 import faction from "../domain/faction/faction.routes";
 import gang from "../domain/gang/gang.routes";
 import { validateJwt } from "../common/middleware/jwtValidator";
+import { Request, Response } from "express";
 
 const routes = () => {
   const app = Router();
-  // app.use(validateJwt);
+  app.use(validateJwt);
   user(app);
   faction(app);
   gang(app);

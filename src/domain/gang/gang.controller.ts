@@ -20,7 +20,7 @@ export async function handleGetGangs(
     logger.error(result.left);
     return next(result.left);
   } else {
-    res.json(result.right).status(200);
+    res.status(200).json(result.right);
   }
 }
 
@@ -36,7 +36,7 @@ export async function handlePostGang(
     logger.error(result.left);
     return next(result.left);
   } else {
-    res.json(result.right).status(200);
+    res.status(201).json(result.right);
   }
 }
 export const getGangs = flow(

@@ -5,12 +5,28 @@ import {
   buildFactionInbound,
   insertFactions,
   buildGangInbound,
+  buildUser,
 } from "../../test/generate";
+import { Request, Response, NextFunction } from "express";
+import { validateJwt } from "../../common/middleware/jwtValidator";
+import { mocked } from "ts-jest/utils";
+
+jest.mock("../../common/middleware/jwtValidator");
+
+const mockValidateJwt = mocked(validateJwt, true);
 
 let request: supertest.SuperTest<supertest.Test>;
 
 beforeAll(async () => {
   const app = await buildApp();
+  const user = buildUser();
+
+  mockValidateJwt.mockImplementation(
+    (req: Request, res: Response, next: NextFunction) => {
+      req.user = user;
+      next();
+    }
+  );
 
   request = supertest(app);
 });
@@ -19,9 +35,7 @@ beforeEach(async () => {
   await clearDatabase();
 });
 
-// switched off until I can mock the express-jwt action
-
-xtest("Create and read gang through api", async () => {
+test("Create and read gang through api", async () => {
   const [faction] = await insertFactions([buildFactionInbound()]);
   // const faction = buildFactionInbound();
   const gang = buildGangInbound({ faction: faction._id });
