@@ -8,10 +8,6 @@ import { Request, Response } from "express";
 const routes = () => {
   const app = Router();
   app.use(validateJwt);
-  app.get("/hello", (req: Request, res: Response) => {
-    res.status(200);
-    res.json(req.user);
-  });
   user(app);
   faction(app);
   gang(app);
