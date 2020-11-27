@@ -2,8 +2,8 @@ import { Router } from "express";
 import user from "./routes/user";
 import faction from "../domain/faction/faction.routes";
 import gang from "../domain/gang/gang.routes";
+import fighterPrototype from "../domain/fighter-prototype/fighter-prototype.routes";
 import { validateJwt } from "../common/middleware/jwtValidator";
-import { Request, Response } from "express";
 
 const routes = () => {
   const app = Router();
@@ -11,6 +11,7 @@ const routes = () => {
   user(app);
   faction(app);
   gang(app);
+  fighterPrototype(app);
 
   return app;
 };

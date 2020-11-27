@@ -1,8 +1,13 @@
 import faker from "faker";
 import { FactionInbound } from "../../domain/faction/faction.type";
 import { GangInbound } from "../../domain/gang/gang.type";
+import {
+  FighterPrototype,
+  FighterPrototypeInbound,
+} from "../../domain/fighter-prototype/fighter-prototype.type";
 import { FactionModel } from "../../domain/faction/faction.model";
 import { User } from "../../common/types/user";
+
 export function buildFactionInbound(
   overrides?: Partial<FactionInbound>
 ): FactionInbound {
@@ -26,6 +31,25 @@ export function buildGangInbound(
     ...overrides,
   };
 }
+
+export function buildFighterPrototypeInbound(
+  overrides?: Partial<FighterPrototypeInbound>
+): FighterPrototypeInbound {
+  return {
+    name: faker.commerce.productName(),
+    faction: faker.random.uuid(),
+    class: fighterClasses[Math.floor(Math.random() * fighterClasses.length)],
+    ...overrides,
+  };
+}
+
+const fighterClasses: Array<FighterPrototype["class"]> = [
+  "Ganger",
+  "Juve",
+  "Leader",
+  "Champion",
+  "Prospect",
+];
 
 export function buildUser(overrides?: Partial<User>): User {
   return {
