@@ -1,6 +1,7 @@
 import { FactionModel } from "./faction.model";
 import { FactionInbound, Faction } from "./faction.type";
 import * as TE from "fp-ts/lib/TaskEither";
+import { UnexpectedDatabaseError } from "../../common/exceptions/unexpectedDatabaseError";
 
 async function impureFindAllFactions() {
   try {
@@ -39,17 +40,4 @@ export function createFaction(
     () => impureCreateFaction(factionDTO),
     (reason) => UnexpectedDatabaseError.of(reason)
   );
-}
-
-export class UnexpectedDatabaseError extends Error {
-  public _tag: "UnexpectedDatabaseError";
-
-  private constructor(reason: unknown) {
-    super(`${reason}`);
-    this._tag = "UnexpectedDatabaseError";
-  }
-
-  public static of(reason: unknown): UnexpectedDatabaseError {
-    return new UnexpectedDatabaseError(reason);
-  }
 }

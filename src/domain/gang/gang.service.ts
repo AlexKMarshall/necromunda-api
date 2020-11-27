@@ -1,7 +1,7 @@
 import { GangModel } from "./gang.model";
 import { Gang, GangInbound } from "./gang.type";
 import * as TE from "fp-ts/lib/TaskEither";
-import { UnexpectedDatabaseError } from "../faction/faction.service";
+import { UnexpectedDatabaseError } from "../../common/exceptions/unexpectedDatabaseError";
 
 async function inpureFindGangsByUser(userId: string) {
   try {
