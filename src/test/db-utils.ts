@@ -4,13 +4,6 @@ import mongooseLoader from "../loaders/mongoose";
 export async function connectMongoose() {
   jest.setTimeout(20000);
   await mongooseLoader();
-  // return mongoose.connect(
-  //   // `mongodb://localhost:27017/necro-${process.env.JEST_WORKER_ID}`,
-  //   // {
-  //   //   useNewUrlParser: true,
-  //   //   useUnifiedTopology: true,
-  //   // }
-  // );
 }
 
 export async function clearDatabase() {
