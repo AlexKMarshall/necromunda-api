@@ -6,7 +6,7 @@ import {
 } from "./fighter-prototype.type";
 import * as TE from "fp-ts/lib/TaskEither";
 import * as E from "fp-ts/lib/Either";
-import { pipe, flow } from "fp-ts/lib/function";
+import { pipe } from "fp-ts/lib/function";
 import { ZodError } from "zod";
 import { UnexpectedDatabaseError } from "../../common/exceptions/unexpectedDatabaseError";
 
@@ -42,7 +42,7 @@ export function findAllFighterPrototypes(): TE.TaskEither<
       () => impureFindAllFighterPrototypes(),
       (reason) => UnexpectedDatabaseError.of(reason)
     ),
-    TE.chainW(flow(parseFighterPrototypeArray, TE.fromEither))
+    TE.chainEitherKW(parseFighterPrototypeArray)
   );
 }
 
@@ -54,7 +54,7 @@ export function findByFactionId(
       () => impureFindFighterPrototypesByFactionId(factionId),
       (reason) => UnexpectedDatabaseError.of(reason)
     ),
-    TE.chainW(flow(parseFighterPrototypeArray, TE.fromEither))
+    TE.chainEitherKW(parseFighterPrototypeArray)
   );
 }
 
@@ -78,7 +78,7 @@ export function createFighterPrototype(
       () => impureCreateFighterPrototype(fighterPrototype),
       (reason) => UnexpectedDatabaseError.of(reason)
     ),
-    TE.chainW(flow(parseFighterPrototype, TE.fromEither))
+    TE.chainEitherKW(parseFighterPrototype)
   );
 }
 

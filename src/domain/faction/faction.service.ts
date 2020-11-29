@@ -2,7 +2,7 @@ import { FactionModel } from "./faction.model";
 import { FactionInbound, Faction, factionSchema } from "./faction.type";
 import * as TE from "fp-ts/lib/TaskEither";
 import * as E from "fp-ts/lib/Either";
-import { pipe, flow } from "fp-ts/lib/function";
+import { pipe } from "fp-ts/lib/function";
 import { ZodError } from "zod";
 import { UnexpectedDatabaseError } from "../../common/exceptions/unexpectedDatabaseError";
 
@@ -21,7 +21,7 @@ export function findAllFactions() {
       () => impureFindAllFactions(),
       (reason) => UnexpectedDatabaseError.of(reason)
     ),
-    TE.chainW(flow(parseFactionArray, TE.fromEither))
+    TE.chainEitherKW(parseFactionArray)
   );
 }
 
@@ -45,7 +45,7 @@ export function createFaction(
       () => impureCreateFaction(factionDTO),
       (reason) => UnexpectedDatabaseError.of(reason)
     ),
-    TE.chainW(flow(parseFaction, TE.fromEither))
+    TE.chainEitherKW(parseFaction)
   );
 }
 
