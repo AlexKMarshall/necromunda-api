@@ -1,5 +1,4 @@
-import mongoose, { Document, Schema } from "mongoose";
-import { FighterPrototype as FighterPrototypeType } from "./fighter-prototype.type";
+import mongoose, { Schema } from "mongoose";
 
 const fighterPrototypeSchema = new mongoose.Schema(
   {
