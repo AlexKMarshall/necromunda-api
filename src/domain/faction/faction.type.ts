@@ -2,7 +2,7 @@ import * as z from "zod";
 
 export const factionSchema = z.object({
   name: z.string(),
-  _id: z.string().uuid(),
+  _id: z.string(),
 });
 
 export type Faction = z.infer<typeof factionSchema>;
