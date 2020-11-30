@@ -11,34 +11,30 @@ afterAll(dbUtils.disconnectMongoose);
 beforeEach(dbUtils.clearDatabase);
 
 describe("factionController", () => {
-  test("postFaction creates a faction", async () => {
+  test("postFaction creates a faction and returns 201 code", async () => {
     const faction = buildFactionInbound();
 
     const trigger = factionController.postFaction(faction);
     const result = await trigger();
 
-    expect(E.isRight(result)).toBe(true);
-
-    if (E.isRight(result)) {
-      expect(result.right).toEqual(expect.objectContaining(faction));
-    }
+    expect(result.code).toBe(201);
+    expect(result.body).toEqual(expect.objectContaining(faction));
   });
   test("postFaction without a valid faction returns exception", async () => {
     const empty = {};
     const trigger = factionController.postFaction(empty);
     const result = await trigger();
 
-    expect(E.isLeft(result)).toBe(true);
+    expect(result.code).toBe(400);
+    expect(result.body).toMatchInlineSnapshot(`
+      Object {
+        "message": "Error: 1 validation issue(s)
 
-    if (E.isLeft(result)) {
-      expect(result.left).toMatchInlineSnapshot(`
-        [Error: 1 validation issue(s)
-
-          Issue #0: invalid_type at name
-          Required
-        ]
-      `);
-    }
+        Issue #0: invalid_type at name
+        Required
+      ",
+      }
+    `);
   });
   xtest("postFaction with an existing name returns exception", async () => {
     const existingFaction = buildFactionInbound({ name: "FAKE_FACTION" });
@@ -47,17 +43,8 @@ describe("factionController", () => {
     const trigger = factionController.postFaction(existingFaction);
     const result = await trigger();
 
-    expect(E.isLeft(result)).toBe(true);
-
-    if (E.isLeft(result)) {
-      expect(result.left).toMatchInlineSnapshot(`
-        [Error: 1 validation issue(s)
-
-          Issue #0: invalid_type at name
-          Required
-        ]
-      `);
-    }
+    expect(result.code).toBe(400);
+    expect(result.body).toMatchInlineSnapshot();
   });
   test("getFactions returns some factions", async () => {
     const [factionOne, factionTwo] = [
@@ -69,17 +56,9 @@ describe("factionController", () => {
     const trigger = factionController.getFactions();
     const result = await trigger();
 
-    expect(E.isRight(result)).toBe(true);
-
-    if (E.isRight(result)) {
-      const returnedFactions = result.right;
-      expect(returnedFactions).toHaveLength(2);
-      expect(returnedFactions).toContainEqual(
-        expect.objectContaining(factionOne)
-      );
-      expect(returnedFactions).toContainEqual(
-        expect.objectContaining(factionTwo)
-      );
-    }
+    expect(result.code).toBe(200);
+    expect(result.body).toHaveLength(2);
+    expect(result.body).toContainEqual(expect.objectContaining(factionOne));
+    expect(result.body).toContainEqual(expect.objectContaining(factionTwo));
   });
 });

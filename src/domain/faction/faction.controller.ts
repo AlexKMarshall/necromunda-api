@@ -17,7 +17,7 @@ import {
 } from "../../common/types/httpResponse";
 import { UnexpectedDatabaseError } from "src/common/exceptions/unexpectedDatabaseError";
 
-export async function handleGetFactions(res: Response) {
+export async function handleGetFactions(req: Request, res: Response) {
   const trigger = getFactions();
 
   const result = await trigger();

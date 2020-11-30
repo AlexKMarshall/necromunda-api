@@ -75,7 +75,7 @@ describe("gangController", () => {
 
     if (E.isLeft(result)) {
       expect(result.left).toMatchInlineSnapshot(`
-        [Error: 1 validation issue(s)
+        [Error: Error: 1 validation issue(s)
 
           Issue #0: invalid_type at 
           Required
