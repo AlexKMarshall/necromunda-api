@@ -5,5 +5,5 @@ const route = Router();
 
 export default (app: Router) => {
   app.use("/purchase", route);
-  route.post("/", purchaseController.handlePostPurchase2);
+  route.post("/", purchaseController.handlePostPurchase);
 };

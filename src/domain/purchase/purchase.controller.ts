@@ -23,42 +23,10 @@ export async function handlePostPurchase(
   const trigger = pipe(
     sequenceT(E.either)(userId, purchase),
     TE.fromEither,
-    TE.map((args) => purchaseService.executePurchase(...args))
+    TE.chainW((args) => purchaseService.executePurchase(...args))
   );
 
   const result = await trigger();
-
-  if (E.isLeft(result)) {
-    logger.error(result.left);
-    return next(result.left);
-  } else {
-    res.status(201).json(result.right);
-  }
-}
-
-export async function handlePostPurchase2(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
-  const userId = pipe(
-    parseUser(req.user),
-    E.map(({ sub }) => sub)
-  );
-  const purchase = pipe(parsePurchase(req.body));
-
-  const trigger = pipe(
-    sequenceT(E.either)(userId, purchase),
-    TE.fromEither,
-    TE.chainW((args) => purchaseService.tempPurchase(...args))
-  );
-
-  const result = await trigger();
-  console.log("result is");
-  console.log(result);
-  if (result._tag === "Right") {
-    console.log(result.right);
-  }
 
   if (E.isLeft(result)) {
     logger.error(result.left);

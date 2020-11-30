@@ -30,10 +30,8 @@ export function findGangsByUser(
 
 async function impureFindGangById(gangId: string) {
   try {
-    console.log("finding gang...");
     const gang = await GangModel.findById(gangId);
     if (!gang) return Promise.reject(`Can't find gang with id: ${gangId}`);
-    console.log(gang);
     const populatedGang = await gang.populate("faction").execPopulate();
     return populatedGang.toObject();
   } catch (reason) {
@@ -42,11 +40,9 @@ async function impureFindGangById(gangId: string) {
 }
 
 export function findGangByID(gangId: string) {
-  console.log("pure find gang", gangId);
   return pipe(
     TE.tryCatch(
       () => {
-        console.log("in try catch");
         return impureFindGangById(gangId);
       },
       (reason) => UnexpectedDatabaseError.of(reason)
@@ -85,13 +81,11 @@ export function createGang(
 
 async function impureAddFighters(gangId: string, fighters: Fighter[]) {
   try {
-    console.log("trying to add fighters");
     const gang = await GangModel.findById(gangId);
     if (!gang) return Promise.reject(`Cannot find gang with id: ${gangId}`);
     gang.fighters.push(...fighters);
     await gang.save();
     const populatedGang = await gang.populate("faction").execPopulate();
-    console.log(populatedGang);
     return populatedGang.toObject();
   } catch (reason) {
     return Promise.reject(reason);
@@ -99,7 +93,6 @@ async function impureAddFighters(gangId: string, fighters: Fighter[]) {
 }
 
 export function addFighters(gangId: string, fighters: Fighter[]) {
-  console.log("add fighters");
   return pipe(
     TE.tryCatch(
       () => impureAddFighters(gangId, fighters),

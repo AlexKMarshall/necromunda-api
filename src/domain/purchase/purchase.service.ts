@@ -14,25 +14,6 @@ import { UnexpectedDatabaseError } from "src/common/exceptions/unexpectedDatabas
 import { ZodError } from "zod";
 
 export function executePurchase(userId: User["sub"], purchase: Purchase) {
-  console.log(userId);
-  console.log(purchase);
-  return pipe(
-    purchase.gangId,
-    gangService.findGangByID,
-    TE.chainEitherKW((gang) => {
-      console.log(gang);
-      return userOwnsGang(userId)(gang);
-    }),
-    TE.chainW((gang) =>
-      A.array.sequence(TE.taskEither)(
-        purchase.fighters.map(mapAFighter(gang.faction._id))
-      )
-    ),
-    TE.chainW((fighters) => gangService.addFighters(purchase.gangId, fighters))
-  );
-}
-
-export function tempPurchase(userId: User["sub"], purchase: Purchase) {
   return pipe(
     purchase.gangId,
     gangService.findGangByID,
@@ -42,11 +23,6 @@ export function tempPurchase(userId: User["sub"], purchase: Purchase) {
         purchase.fighters.map(mapAFighter(gang.faction._id))
       )
     ),
-    TE.map((fighters) => {
-      console.log("still have fighters");
-      console.log(fighters);
-      return fighters;
-    }),
     TE.chainW((fighters) => gangService.addFighters(purchase.gangId, fighters))
   );
 }
