@@ -10,3 +10,9 @@ export class UnexpectedDatabaseError extends Error {
     return new UnexpectedDatabaseError(reason);
   }
 }
+
+export function isUnexpectedDatabaseError(
+  e: UnexpectedDatabaseError | Error
+): e is UnexpectedDatabaseError {
+  return (e as UnexpectedDatabaseError)._tag === "UnexpectedDatabaseError";
+}
