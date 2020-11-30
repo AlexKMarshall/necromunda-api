@@ -10,6 +10,7 @@ import * as TE from "fp-ts/lib/TaskEither";
 import * as z from "zod";
 import { flow } from "fp-ts/lib/function";
 import logger from "../../loaders/logger";
+import { parseObject } from "../../common/utils/validation";
 
 export async function handleGetFighterPrototypes(
   req: Request,
@@ -67,12 +68,7 @@ const querySchema = z.object({
   faction: z.string(),
 });
 
-type QueryType = z.infer<typeof querySchema>;
-
-function parseQueryParams(query: unknown): E.Either<z.ZodError, QueryType> {
-  const result = querySchema.safeParse(query);
-  return result.success ? E.right(result.data) : E.left(result.error);
-}
+const parseQueryParams = parseObject(querySchema);
 
 const getFighterPrototypesByFaction = flow(
   parseQueryParams,

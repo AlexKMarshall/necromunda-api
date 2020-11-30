@@ -1,10 +1,11 @@
 import { FactionModel } from "./faction.model";
 import { FactionInbound, Faction, factionSchema } from "./faction.type";
 import * as TE from "fp-ts/lib/TaskEither";
-import * as E from "fp-ts/lib/Either";
 import { pipe } from "fp-ts/lib/function";
-import { ZodError } from "zod";
+import { isValidationError } from "../../common/exceptions/validationError";
+import { parseObject } from "../../common/utils/validation";
 import { UnexpectedDatabaseError } from "../../common/exceptions/unexpectedDatabaseError";
+import { ValidationError } from "src/common/exceptions/validationError";
 
 async function impureFindAllFactions() {
   try {
@@ -39,22 +40,33 @@ async function impureCreateFaction(
 
 export function createFaction(
   factionDTO: FactionInbound
-): TE.TaskEither<UnexpectedDatabaseError | ZodError, Faction> {
+): TE.TaskEither<UnexpectedDatabaseError, Faction> {
   return pipe(
     TE.tryCatch(
       () => impureCreateFaction(factionDTO),
       (reason) => UnexpectedDatabaseError.of(reason)
     ),
-    TE.chainEitherKW(parseFaction)
+    TE.chainEitherKW(parseFaction),
+    parsingErrorHandler
   );
 }
 
-function parseFactionArray(faction: unknown): E.Either<ZodError, Faction[]> {
-  const result = factionSchema.array().safeParse(faction);
-  return result.success ? E.right(result.data) : E.left(result.error);
-}
+const parseFaction = parseObject(factionSchema);
+const parseFactionArray = parseObject(factionSchema.array());
 
-function parseFaction(faction: unknown): E.Either<ZodError, Faction> {
-  const result = factionSchema.safeParse(faction);
-  return result.success ? E.right(result.data) : E.left(result.error);
+function parsingErrorHandler<A>(
+  x: TE.TaskEither<ValidationError | UnexpectedDatabaseError, A>
+) {
+  return pipe(
+    x,
+    TE.swap,
+    TE.map((e) =>
+      isValidationError(e)
+        ? UnexpectedDatabaseError.of(
+            `Database object failed parsing ${e.message}`
+          )
+        : e
+    ),
+    TE.swap
+  );
 }
