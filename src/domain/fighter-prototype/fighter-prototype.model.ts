@@ -1,4 +1,5 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
+import { FighterPrototype } from "./fighter-prototype.type";
 
 const fighterPrototypeSchema = new mongoose.Schema(
   {
@@ -14,7 +15,7 @@ const fighterPrototypeSchema = new mongoose.Schema(
   }
 );
 
-const FighterPrototypeModel = mongoose.model(
+const FighterPrototypeModel = mongoose.model<FighterPrototype & Document>(
   "FighterPrototype",
   fighterPrototypeSchema
 );

@@ -5,8 +5,9 @@ import * as E from "fp-ts/lib/Either";
 import { pipe } from "fp-ts/lib/function";
 import { ZodError } from "zod";
 import { UnexpectedDatabaseError } from "../../common/exceptions/unexpectedDatabaseError";
+import { Fighter } from "../fighter/fighter.type";
 
-async function inpureFindGangsByUser(userId: string) {
+async function impureFindGangsByUser(userId: string) {
   try {
     const gangs = await GangModel.find({ userId }).populate("faction").exec();
     return gangs.map((doc) => doc.toObject());
@@ -20,10 +21,43 @@ export function findGangsByUser(
 ): TE.TaskEither<UnexpectedDatabaseError | ZodError, Gang[]> {
   return pipe(
     TE.tryCatch(
-      () => inpureFindGangsByUser(userId),
+      () => impureFindGangsByUser(userId),
       (reason) => UnexpectedDatabaseError.of(reason)
     ),
     TE.chainEitherKW(parseGangArray)
+  );
+}
+
+async function impureFindGangById(gangId: string) {
+  try {
+    console.log("finding gang...");
+    const gang = await GangModel.findById(gangId);
+    if (!gang) return Promise.reject(`Can't find gang with id: ${gangId}`);
+    console.log(gang);
+    const populatedGang = await gang.populate("faction").execPopulate();
+    return populatedGang.toObject();
+  } catch (reason) {
+    return Promise.reject(reason);
+  }
+}
+
+export function findGangByID(gangId: string) {
+  console.log("pure find gang", gangId);
+  return pipe(
+    TE.tryCatch(
+      () => {
+        console.log("in try catch");
+        return impureFindGangById(gangId);
+      },
+      (reason) => UnexpectedDatabaseError.of(reason)
+    ),
+    // `TO`DO is this a problem?
+    TE.chainEitherK((maybeGang) =>
+      maybeGang
+        ? E.right(maybeGang)
+        : E.left(UnexpectedDatabaseError.of(`No gang found with id ${gangId}`))
+    ),
+    TE.chainEitherKW(parseGang)
   );
 }
 
@@ -43,6 +77,32 @@ export function createGang(
   return pipe(
     TE.tryCatch(
       () => impureCreateGang(gang),
+      (reason) => UnexpectedDatabaseError.of(reason)
+    ),
+    TE.chainEitherKW(parseGang)
+  );
+}
+
+async function impureAddFighters(gangId: string, fighters: Fighter[]) {
+  try {
+    console.log("trying to add fighters");
+    const gang = await GangModel.findById(gangId);
+    if (!gang) return Promise.reject(`Cannot find gang with id: ${gangId}`);
+    gang.fighters.push(...fighters);
+    await gang.save();
+    const populatedGang = await gang.populate("faction").execPopulate();
+    console.log(populatedGang);
+    return populatedGang.toObject();
+  } catch (reason) {
+    return Promise.reject(reason);
+  }
+}
+
+export function addFighters(gangId: string, fighters: Fighter[]) {
+  console.log("add fighters");
+  return pipe(
+    TE.tryCatch(
+      () => impureAddFighters(gangId, fighters),
       (reason) => UnexpectedDatabaseError.of(reason)
     ),
     TE.chainEitherKW(parseGang)

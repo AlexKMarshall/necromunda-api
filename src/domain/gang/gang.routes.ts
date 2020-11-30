@@ -8,4 +8,5 @@ export default (app: Router) => {
 
   route.get("/", gangController.handleGetGangs);
   route.post("/", gangController.handlePostGang);
+  route.get("/:gangId", gangController.handleGetGangById);
 };

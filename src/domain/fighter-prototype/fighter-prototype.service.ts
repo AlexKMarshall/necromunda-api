@@ -21,13 +21,13 @@ async function impureFindAllFighterPrototypes() {
 
 async function impureFindFighterPrototypesByFactionId(factionId: string) {
   try {
-    console.log("faction id is ", factionId);
     const allFighterPrototypes = await FighterPrototypeModel.find().populate(
       "faction"
     );
+
     return allFighterPrototypes
       .map((doc) => doc.toObject())
-      .filter((f) => f.faction._id === factionId);
+      .filter((fp) => fp.faction._id === factionId);
   } catch (reason) {
     return Promise.reject(reason);
   }
@@ -55,6 +55,39 @@ export function findByFactionId(
       (reason) => UnexpectedDatabaseError.of(reason)
     ),
     TE.chainEitherKW(parseFighterPrototypeArray)
+  );
+}
+
+async function impureFindById(fighterPrototypeId: string) {
+  try {
+    const fp = await FighterPrototypeModel.findById(fighterPrototypeId);
+    if (!fp)
+      return Promise.reject(
+        `No fighter prototype found with id ${fighterPrototypeId}`
+      );
+    const populatedFp = await fp.populate("faction").execPopulate();
+    return populatedFp.toObject();
+  } catch (reason) {
+    return Promise.reject(reason);
+  }
+}
+
+export function findByID(id: string) {
+  return pipe(
+    TE.tryCatch(
+      () => impureFindById(id),
+      (reason) => UnexpectedDatabaseError.of(reason)
+    ),
+    TE.chainEitherK((maybeFighterPrototype) =>
+      maybeFighterPrototype
+        ? E.right(maybeFighterPrototype)
+        : E.left(
+            UnexpectedDatabaseError.of(
+              `No fighter prototype found with id ${id}`
+            )
+          )
+    ),
+    TE.chainEitherKW(parseFighterPrototype)
   );
 }
 

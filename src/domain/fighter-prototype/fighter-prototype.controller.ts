@@ -16,8 +16,6 @@ export async function handleGetFighterPrototypes(
   res: Response,
   next: NextFunction
 ) {
-  console.log(req.query);
-
   const trigger = getFighterPrototypes(req.query);
 
   const result = await trigger();
