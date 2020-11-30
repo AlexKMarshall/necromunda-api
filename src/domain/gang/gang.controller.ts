@@ -24,6 +24,23 @@ export async function handleGetGangs(
   }
 }
 
+export async function handleGetGangById(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const { gangId } = req.params;
+  const trigger = getGangById(gangId);
+  const result = await trigger();
+
+  if (E.isLeft(result)) {
+    logger.error(result.left);
+    return next(result.left);
+  } else {
+    res.status(200).json(result.right);
+  }
+}
+
 export async function handlePostGang(
   req: Request,
   res: Response,
@@ -44,6 +61,10 @@ export const getGangs = flow(
   TE.fromEither,
   TE.chainW(({ sub: userId }) => gangService.findGangsByUser(userId))
 );
+
+function getGangById(id: string) {
+  return gangService.findGangByID(id);
+}
 
 export function postGang<T extends {}>(user: unknown, partialGang: T) {
   return pipe(

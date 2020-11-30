@@ -1,23 +1,27 @@
 import { FactionModel } from "./faction.model";
-import { FactionInbound, Faction } from "./faction.type";
+import { FactionInbound, Faction, factionSchema } from "./faction.type";
 import * as TE from "fp-ts/lib/TaskEither";
+import * as E from "fp-ts/lib/Either";
+import { pipe } from "fp-ts/lib/function";
+import { ZodError } from "zod";
 import { UnexpectedDatabaseError } from "../../common/exceptions/unexpectedDatabaseError";
 
 async function impureFindAllFactions() {
   try {
-    return await FactionModel.find().lean();
+    const factionsDocs = await FactionModel.find();
+    return factionsDocs.map((doc) => doc.toObject());
   } catch (reason) {
     return Promise.reject(reason);
   }
 }
 
-export function findAllFactions(): TE.TaskEither<
-  UnexpectedDatabaseError,
-  Faction[]
-> {
-  return TE.tryCatch(
-    () => impureFindAllFactions(),
-    (reason) => UnexpectedDatabaseError.of(reason)
+export function findAllFactions() {
+  return pipe(
+    TE.tryCatch(
+      () => impureFindAllFactions(),
+      (reason) => UnexpectedDatabaseError.of(reason)
+    ),
+    TE.chainEitherKW(parseFactionArray)
   );
 }
 
@@ -27,7 +31,7 @@ async function impureCreateFaction(
   try {
     const newFaction = new FactionModel(factionDTO);
     await newFaction.save();
-    return newFaction;
+    return newFaction.toObject();
   } catch (reason) {
     return Promise.reject(reason);
   }
@@ -35,9 +39,22 @@ async function impureCreateFaction(
 
 export function createFaction(
   factionDTO: FactionInbound
-): TE.TaskEither<UnexpectedDatabaseError, Faction> {
-  return TE.tryCatch(
-    () => impureCreateFaction(factionDTO),
-    (reason) => UnexpectedDatabaseError.of(reason)
+): TE.TaskEither<UnexpectedDatabaseError | ZodError, Faction> {
+  return pipe(
+    TE.tryCatch(
+      () => impureCreateFaction(factionDTO),
+      (reason) => UnexpectedDatabaseError.of(reason)
+    ),
+    TE.chainEitherKW(parseFaction)
   );
+}
+
+function parseFactionArray(faction: unknown): E.Either<ZodError, Faction[]> {
+  const result = factionSchema.array().safeParse(faction);
+  return result.success ? E.right(result.data) : E.left(result.error);
+}
+
+function parseFaction(faction: unknown): E.Either<ZodError, Faction> {
+  const result = factionSchema.safeParse(faction);
+  return result.success ? E.right(result.data) : E.left(result.error);
 }

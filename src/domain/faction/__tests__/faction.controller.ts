@@ -47,8 +47,6 @@ describe("factionController", () => {
     const trigger = factionController.postFaction(existingFaction);
     const result = await trigger();
 
-    console.log(result);
-
     expect(E.isLeft(result)).toBe(true);
 
     if (E.isLeft(result)) {
