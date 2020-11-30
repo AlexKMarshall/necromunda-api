@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response } from "express";
-import { FactionInbound, factionInboundSchema } from "./faction.type";
+import { factionInboundSchema } from "./faction.type";
 import * as factionService from "./faction.service";
 import * as E from "fp-ts/lib/Either";
 import * as TE from "fp-ts/lib/TaskEither";
-import { ZodError } from "zod";
 import { flow } from "fp-ts/lib/function";
 import logger from "../../loaders/logger";
+import { parseObject } from "../../common/utils/validation";
 
 export async function handleGetFactions(
   req: Request,
@@ -46,12 +46,7 @@ export async function handlePostFaction(
 }
 
 export const postFaction = flow(
-  parseFaction,
+  parseObject(factionInboundSchema),
   TE.fromEither,
   TE.chainW(factionService.createFaction)
 );
-
-function parseFaction(faction: unknown): E.Either<ZodError, FactionInbound> {
-  const result = factionInboundSchema.safeParse(faction);
-  return result.success ? E.right(result.data) : E.left(result.error);
-}
