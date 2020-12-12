@@ -7,7 +7,6 @@ import {
 import * as TE from "fp-ts/lib/TaskEither";
 import * as E from "fp-ts/lib/Either";
 import { pipe } from "fp-ts/lib/function";
-import { ZodError } from "zod";
 import { UnexpectedDatabaseError } from "../../common/exceptions/unexpectedDatabaseError";
 import { parseObject } from "../../common/utils/validation";
 import {

@@ -105,7 +105,8 @@ export function addFighters(gangId: string, fighters: Fighter[]) {
       () => impureAddFighters(gangId, fighters),
       (reason) => UnexpectedDatabaseError.of(reason)
     ),
-    TE.chainEitherKW(parseGang)
+    TE.chainEitherKW(parseGang),
+    parsingErrorHandler
   );
 }
 

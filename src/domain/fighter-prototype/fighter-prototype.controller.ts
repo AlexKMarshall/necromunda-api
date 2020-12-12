@@ -32,7 +32,7 @@ export const getAllFighterPrototypes = flow(
   fighterPrototypeService.findAllFighterPrototypes,
   TE.fold(
     (left) => T.of(toHttpError(left)),
-    (right) => T.of(toHttpOk(right))
+    (right) => T.of(HttpOk.of(right))
   )
 );
 
@@ -53,7 +53,7 @@ export const postFighterPrototype = flow(
   TE.chainW(fighterPrototypeService.createFighterPrototype),
   TE.fold(
     (left) => T.of(toHttpError(left)),
-    (right) => T.of(toHttpCreate(right))
+    (right) => T.of(HttpCreated.of(right))
   )
 );
 
@@ -69,7 +69,7 @@ const getFighterPrototypesByFaction = flow(
   TE.chainW(({ faction }) => fighterPrototypeService.findByFactionId(faction)),
   TE.fold(
     (left) => T.of(toHttpError(left)),
-    (right) => T.of(toHttpOk(right))
+    (right) => T.of(HttpOk.of(right))
   )
 );
 
@@ -81,14 +81,6 @@ const getFighterPrototypes = flow(
   objectWithProps,
   O.fold(getAllFighterPrototypes, getFighterPrototypesByFaction)
 );
-
-function toHttpOk(body: any): HttpResponse {
-  return HttpOk.of(body);
-}
-
-function toHttpCreate(body: any): HttpResponse {
-  return HttpCreated.of(body);
-}
 
 function toHttpError(
   e: ValidationError | UnexpectedDatabaseError

@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import * as gangService from "./gang.service";
 import { gangInboundSchema } from "./gang.type";
 import { userSchema } from "../../common/types/user";
@@ -48,7 +48,7 @@ const getGangById = flow(
   gangService.findGangByID,
   TE.fold(
     (left) => T.of(toHttpError(left)),
-    (right) => T.of(toHttpOk(right))
+    (right) => T.of(HttpOk.of(right))
   )
 );
 
@@ -61,7 +61,7 @@ export function postGang<T extends {}>(user: unknown, partialGang: T) {
     TE.chainW(gangService.createGang),
     TE.fold(
       (left) => T.of(toHttpError(left)),
-      (right) => T.of(toHttpCreate(right))
+      (right) => T.of(HttpCreated.of(right))
     )
   );
 }
@@ -74,17 +74,9 @@ export const getGangs = flow(
   TE.chainW(({ sub: userId }) => gangService.findGangsByUser(userId)),
   TE.fold(
     (left) => T.of(toHttpError(left)),
-    (right) => T.of(toHttpOk(right))
+    (right) => T.of(HttpOk.of(right))
   )
 );
-
-function toHttpOk(body: any): HttpResponse {
-  return HttpOk.of(body);
-}
-
-function toHttpCreate(body: any): HttpResponse {
-  return HttpCreated.of(body);
-}
 
 function toHttpError(
   e: ValidationError | UnexpectedDatabaseError

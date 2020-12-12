@@ -30,7 +30,7 @@ export const getFactions = flow(
   factionService.findAllFactions,
   TE.fold(
     (left) => T.of(toHttpError(left)),
-    (right) => T.of(toHttpOk(right))
+    (right) => T.of(HttpOk.of(right))
   )
 );
 
@@ -51,20 +51,12 @@ function toHttpError(
     : HttpError.of(500, e.message);
 }
 
-function toHttpOk(body: any): HttpResponse {
-  return HttpOk.of(body);
-}
-
-function toHttpCreate(body: any): HttpResponse {
-  return HttpCreated.of(body);
-}
-
 export const postFaction = flow(
   parseObject(factionInboundSchema),
   TE.fromEither,
   TE.chainW(factionService.createFaction),
   TE.fold(
     (left) => T.of(toHttpError(left)),
-    (right) => T.of(toHttpCreate(right))
+    (right) => T.of(HttpCreated.of(right))
   )
 );
