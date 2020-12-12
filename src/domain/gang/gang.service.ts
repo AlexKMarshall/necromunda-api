@@ -22,13 +22,14 @@ async function impureFindGangsByUser(userId: string) {
 
 export function findGangsByUser(
   userId: string
-): TE.TaskEither<UnexpectedDatabaseError | ValidationError, Gang[]> {
+): TE.TaskEither<UnexpectedDatabaseError, Gang[]> {
   return pipe(
     TE.tryCatch(
       () => impureFindGangsByUser(userId),
       (reason) => UnexpectedDatabaseError.of(reason)
     ),
-    TE.chainEitherKW(parseGangArray)
+    TE.chainEitherKW(parseGangArray),
+    parsingErrorHandler
   );
 }
 

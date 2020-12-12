@@ -6,7 +6,6 @@ import * as E from "fp-ts/lib/Either";
 import * as TE from "fp-ts/lib/TaskEither";
 import * as T from "fp-ts/lib/Task";
 import { flow, pipe } from "fp-ts/lib/function";
-import logger from "../../loaders/logger";
 import { parseObject } from "../../common/utils/validation";
 import {
   HttpCreated,

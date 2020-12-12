@@ -1,68 +1,61 @@
-import { NextFunction, Request, Response } from "express";
-import {
-  FighterPrototypeInbound,
-  fighterPrototypeInboundSchema,
-} from "./fighter-prototype.type";
+import { Request, Response } from "express";
+import { fighterPrototypeInboundSchema } from "./fighter-prototype.type";
 import * as fighterPrototypeService from "./fighter-prototype.service";
 import * as O from "fp-ts/lib/Option";
-import * as E from "fp-ts/lib/Either";
 import * as TE from "fp-ts/lib/TaskEither";
+import * as T from "fp-ts/lib/Task";
 import * as z from "zod";
+import { UnexpectedDatabaseError } from "../../common/exceptions/unexpectedDatabaseError";
+import {
+  HttpCreated,
+  HttpError,
+  HttpOk,
+  HttpResponse,
+} from "../../common/types/httpResponse";
 import { flow } from "fp-ts/lib/function";
-import logger from "../../loaders/logger";
 import { parseObject } from "../../common/utils/validation";
+import {
+  isValidationError,
+  ValidationError,
+} from "../../common/exceptions/validationError";
 
-export async function handleGetFighterPrototypes(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+export async function handleGetFighterPrototypes(req: Request, res: Response) {
   const trigger = getFighterPrototypes(req.query);
 
   const result = await trigger();
 
-  if (E.isLeft(result)) {
-    logger.error(result.left);
-    return next(result.left);
-  } else {
-    res.status(200);
-    res.json(result.right);
-  }
+  res.status(result.code);
+  res.json(result.body);
 }
 
-export const getAllFighterPrototypes =
-  fighterPrototypeService.findAllFighterPrototypes;
+export const getAllFighterPrototypes = flow(
+  fighterPrototypeService.findAllFighterPrototypes,
+  TE.fold(
+    (left) => T.of(toHttpError(left)),
+    (right) => T.of(toHttpOk(right))
+  )
+);
 
-export async function handlePostFighterPrototype(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+export async function handlePostFighterPrototype(req: Request, res: Response) {
   const trigger = postFighterPrototype(req.body);
 
   const result = await trigger();
 
-  if (E.isLeft(result)) {
-    logger.error(result.left);
-    return next(result.left);
-  } else {
-    res.status(201);
-    res.json(result.right);
-  }
+  res.status(result.code);
+  res.status(result.body);
 }
+
+const parseFighterPrototype = parseObject(fighterPrototypeInboundSchema);
 
 export const postFighterPrototype = flow(
   parseFighterPrototype,
   TE.fromEither,
-  TE.chainW(fighterPrototypeService.createFighterPrototype)
+  TE.chainW(fighterPrototypeService.createFighterPrototype),
+  TE.fold(
+    (left) => T.of(toHttpError(left)),
+    (right) => T.of(toHttpCreate(right))
+  )
 );
-
-function parseFighterPrototype(
-  fighterPrototype: unknown
-): E.Either<z.ZodError, FighterPrototypeInbound> {
-  const result = fighterPrototypeInboundSchema.safeParse(fighterPrototype);
-  return result.success ? E.right(result.data) : E.left(result.error);
-}
 
 const querySchema = z.object({
   faction: z.string(),
@@ -73,7 +66,11 @@ const parseQueryParams = parseObject(querySchema);
 const getFighterPrototypesByFaction = flow(
   parseQueryParams,
   TE.fromEither,
-  TE.chainW(({ faction }) => fighterPrototypeService.findByFactionId(faction))
+  TE.chainW(({ faction }) => fighterPrototypeService.findByFactionId(faction)),
+  TE.fold(
+    (left) => T.of(toHttpError(left)),
+    (right) => T.of(toHttpOk(right))
+  )
 );
 
 function objectWithProps<T extends {}>(object: T): O.Option<T> {
@@ -84,3 +81,19 @@ const getFighterPrototypes = flow(
   objectWithProps,
   O.fold(getAllFighterPrototypes, getFighterPrototypesByFaction)
 );
+
+function toHttpOk(body: any): HttpResponse {
+  return HttpOk.of(body);
+}
+
+function toHttpCreate(body: any): HttpResponse {
+  return HttpCreated.of(body);
+}
+
+function toHttpError(
+  e: ValidationError | UnexpectedDatabaseError
+): HttpResponse {
+  return isValidationError(e)
+    ? HttpError.of(400, e.message)
+    : HttpError.of(500, e.message);
+}
