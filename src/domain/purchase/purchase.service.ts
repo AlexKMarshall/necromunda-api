@@ -46,7 +46,7 @@ function makeFighter(proto: FighterPrototype, name: string): Fighter {
   return {
     name,
     proto: proto.name,
-    class: proto.class,
+    fighterClass: proto.fighterClass,
     protoId: proto._id,
   };
 }

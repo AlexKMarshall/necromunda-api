@@ -5,7 +5,7 @@ import { pipe } from "fp-ts/lib/function";
 import { isValidationError } from "../../common/exceptions/validationError";
 import { parseObject } from "../../common/utils/validation";
 import { UnexpectedDatabaseError } from "../../common/exceptions/unexpectedDatabaseError";
-import { ValidationError } from "src/common/exceptions/validationError";
+import { ValidationError } from "../../common/exceptions/validationError";
 
 async function impureFindAllFactions() {
   try {
