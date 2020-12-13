@@ -1,6 +1,5 @@
 import * as factionController from "../faction.controller";
 import * as dbUtils from "../../../test/db-utils";
-import * as E from "fp-ts/lib/Either";
 import { FactionModel } from "../faction.model";
 
 import { buildFactionInbound } from "../../../test/generate";

@@ -1,6 +1,5 @@
 import * as gangController from "../gang.controller";
 import * as dbUtils from "../../../test/db-utils";
-import * as E from "fp-ts/lib/Either";
 import { GangModel } from "../gang.model";
 import faker from "faker";
 import {
@@ -24,7 +23,7 @@ afterAll(dbUtils.disconnectMongoose);
 beforeEach(dbUtils.clearDatabase);
 
 describe("gangController", () => {
-  test("postGang creates a gang", async () => {
+  test("postGang creates a gang and returns 201 code", async () => {
     const [faction] = await insertFactions([buildFactionInbound()]);
     const gang = buildGangInbound({ faction: faction._id.toString() });
     const gangWithoutUser = removeProp("userId", gang);
@@ -33,14 +32,8 @@ describe("gangController", () => {
     const trigger = gangController.postGang(user, gangWithoutUser);
     const result = await trigger();
 
-    expect(E.isRight(result)).toBe(true);
-
-    if (E.isRight(result)) {
-      const returnedGang = result.right;
-      expect(returnedGang.name).toEqual(gang.name);
-      expect(returnedGang.userId).toEqual(user.sub);
-      expect(returnedGang.faction.name).toEqual(faction.name);
-    }
+    expect(result.code).toBe(201);
+    expect(result.body).toEqual(expect.objectContaining({ name: gang.name }));
   });
   test("getGangs returns gangs for that userId", async () => {
     const [faction] = await insertFactions([buildFactionInbound()]);
@@ -55,15 +48,11 @@ describe("gangController", () => {
     const trigger = gangController.getGangs(myUser);
     const result = await trigger();
 
-    expect(E.isRight(result)).toBe(true);
-
-    if (E.isRight(result)) {
-      expect(result.right).toHaveLength(1);
-      const [returnedGang] = result.right;
-      expect(returnedGang.name).toEqual(myGang.name);
-      expect(returnedGang.userId).toEqual(myUser.sub);
-      expect(returnedGang.faction.name).toEqual(faction.name);
-    }
+    expect(result.code).toBe(200);
+    expect(result.body).toHaveLength(1);
+    expect(result.body[0]).toEqual(
+      expect.objectContaining({ name: myGang.name })
+    );
   });
   test("getGangs returns error if no user provided", async () => {
     const undefinedUser = undefined;
@@ -71,16 +60,15 @@ describe("gangController", () => {
     const trigger = gangController.getGangs(undefinedUser);
     const result = await trigger();
 
-    expect(E.isLeft(result)).toBe(true);
+    expect(result.code).toBe(400);
+    expect(result.body).toMatchInlineSnapshot(`
+      Object {
+        "message": "Error: 1 validation issue(s)
 
-    if (E.isLeft(result)) {
-      expect(result.left).toMatchInlineSnapshot(`
-        [Error: Error: 1 validation issue(s)
-
-          Issue #0: invalid_type at 
-          Required
-        ]
-      `);
-    }
+        Issue #0: invalid_type at 
+        Required
+      ",
+      }
+    `);
   });
 });
