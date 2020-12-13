@@ -6,7 +6,7 @@ const fighterSchema = new mongoose.Schema(
     name: { type: String, required: true },
     proto: { type: String, required: true },
     protoId: { type: mongoose.SchemaTypes.ObjectId, required: true },
-    class: { type: String, required: true },
+    fighterClass: { type: String, required: true },
   },
   {
     toObject: {

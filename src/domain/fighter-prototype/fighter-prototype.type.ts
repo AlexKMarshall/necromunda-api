@@ -3,7 +3,7 @@ import { factionSchema } from "../faction/faction.type";
 
 export const fighterPrototypeSchema = z.object({
   name: z.string(),
-  class: z.enum(["Ganger", "Juve", "Leader", "Champion", "Prospect"]),
+  fighterClass: z.enum(["Ganger", "Juve", "Leader", "Champion", "Prospect"]),
   faction: factionSchema,
   _id: z.string(),
 });

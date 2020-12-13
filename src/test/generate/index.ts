@@ -38,12 +38,13 @@ export function buildFighterPrototypeInbound(
   return {
     name: faker.commerce.productName(),
     faction: faker.random.uuid(),
-    class: fighterClasses[Math.floor(Math.random() * fighterClasses.length)],
+    fighterClass:
+      fighterClasses[Math.floor(Math.random() * fighterClasses.length)],
     ...overrides,
   };
 }
 
-const fighterClasses: Array<FighterPrototype["class"]> = [
+const fighterClasses: Array<FighterPrototype["fighterClass"]> = [
   "Ganger",
   "Juve",
   "Leader",

@@ -6,7 +6,7 @@ export const fighterSchema = z.object({
   name: z.string(),
   proto: fighterPrototypeSchema.shape.name,
   protoId: fighterPrototypeSchema.shape._id,
-  class: fighterPrototypeSchema.shape.class,
+  fighterClass: fighterPrototypeSchema.shape.fighterClass,
 });
 
 export type Fighter = z.infer<typeof fighterSchema>;

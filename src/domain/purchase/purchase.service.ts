@@ -8,10 +8,10 @@ import * as gangService from "../gang/gang.service";
 import * as fighterPrototypeService from "../fighter-prototype/fighter-prototype.service";
 import { Gang } from "../gang/gang.type";
 import { PermissionError } from "../../common/exceptions/permissionError";
+import { BadDataError } from "../../common/exceptions/badDataError";
 import { FighterPrototype } from "../fighter-prototype/fighter-prototype.type";
 import { Fighter } from "../fighter/fighter.type";
 import { UnexpectedDatabaseError } from "src/common/exceptions/unexpectedDatabaseError";
-import { ZodError } from "zod";
 
 export function executePurchase(userId: User["sub"], purchase: Purchase) {
   return pipe(
@@ -30,10 +30,7 @@ export function executePurchase(userId: User["sub"], purchase: Purchase) {
 function mapAFighter(factionId: string) {
   return (
     f: Purchase["fighters"][number]
-  ): TE.TaskEither<
-    ZodError | UnexpectedDatabaseError | PermissionError,
-    Fighter
-  > =>
+  ): TE.TaskEither<UnexpectedDatabaseError | BadDataError, Fighter> =>
     pipe(
       f.protoId,
       fighterPrototypeService.findByID,
@@ -46,7 +43,7 @@ function makeFighter(proto: FighterPrototype, name: string): Fighter {
   return {
     name,
     proto: proto.name,
-    class: proto.class,
+    fighterClass: proto.fighterClass,
     protoId: proto._id,
   };
 }
@@ -56,7 +53,7 @@ function factionOwnsPrototype(factionId: string) {
     prototype.faction._id === factionId
       ? E.right(prototype)
       : E.left(
-          PermissionError.of(
+          BadDataError.of(
             `FactionId ${factionId} can't use this fighter prototype`
           )
         );

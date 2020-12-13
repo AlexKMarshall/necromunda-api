@@ -3,9 +3,13 @@ import { Gang, GangInbound, gangSchema } from "./gang.type";
 import * as TE from "fp-ts/lib/TaskEither";
 import * as E from "fp-ts/lib/Either";
 import { pipe } from "fp-ts/lib/function";
-import { ZodError } from "zod";
 import { UnexpectedDatabaseError } from "../../common/exceptions/unexpectedDatabaseError";
 import { Fighter } from "../fighter/fighter.type";
+import { parseObject } from "../../common/utils/validation";
+import {
+  ValidationError,
+  isValidationError,
+} from "../../common/exceptions/validationError";
 
 async function impureFindGangsByUser(userId: string) {
   try {
@@ -18,13 +22,14 @@ async function impureFindGangsByUser(userId: string) {
 
 export function findGangsByUser(
   userId: string
-): TE.TaskEither<UnexpectedDatabaseError | ZodError, Gang[]> {
+): TE.TaskEither<UnexpectedDatabaseError, Gang[]> {
   return pipe(
     TE.tryCatch(
       () => impureFindGangsByUser(userId),
       (reason) => UnexpectedDatabaseError.of(reason)
     ),
-    TE.chainEitherKW(parseGangArray)
+    TE.chainEitherKW(parseGangArray),
+    parsingErrorHandler
   );
 }
 
@@ -53,7 +58,8 @@ export function findGangByID(gangId: string) {
         ? E.right(maybeGang)
         : E.left(UnexpectedDatabaseError.of(`No gang found with id ${gangId}`))
     ),
-    TE.chainEitherKW(parseGang)
+    TE.chainEitherKW(parseGang),
+    parsingErrorHandler
   );
 }
 
@@ -69,13 +75,14 @@ async function impureCreateGang(gangDTO: GangInbound) {
 
 export function createGang(
   gang: GangInbound
-): TE.TaskEither<UnexpectedDatabaseError | ZodError, Gang> {
+): TE.TaskEither<UnexpectedDatabaseError, Gang> {
   return pipe(
     TE.tryCatch(
       () => impureCreateGang(gang),
       (reason) => UnexpectedDatabaseError.of(reason)
     ),
-    TE.chainEitherKW(parseGang)
+    TE.chainEitherKW(parseGang),
+    parsingErrorHandler
   );
 }
 
@@ -98,16 +105,27 @@ export function addFighters(gangId: string, fighters: Fighter[]) {
       () => impureAddFighters(gangId, fighters),
       (reason) => UnexpectedDatabaseError.of(reason)
     ),
-    TE.chainEitherKW(parseGang)
+    TE.chainEitherKW(parseGang),
+    parsingErrorHandler
   );
 }
 
-function parseGang(gang: unknown): E.Either<ZodError, Gang> {
-  const result = gangSchema.safeParse(gang);
-  return result.success ? E.right(result.data) : E.left(result.error);
-}
+const parseGang = parseObject(gangSchema);
+const parseGangArray = parseObject(gangSchema.array());
 
-function parseGangArray(gangs: unknown): E.Either<ZodError, Gang[]> {
-  const result = gangSchema.array().safeParse(gangs);
-  return result.success ? E.right(result.data) : E.left(result.error);
+function parsingErrorHandler<A>(
+  x: TE.TaskEither<ValidationError | UnexpectedDatabaseError, A>
+) {
+  return pipe(
+    x,
+    TE.swap,
+    TE.map((e) =>
+      isValidationError(e)
+        ? UnexpectedDatabaseError.of(
+            `Database object failed parsing ${e.message}`
+          )
+        : e
+    ),
+    TE.swap
+  );
 }

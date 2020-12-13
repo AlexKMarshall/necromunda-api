@@ -7,8 +7,12 @@ import {
 import * as TE from "fp-ts/lib/TaskEither";
 import * as E from "fp-ts/lib/Either";
 import { pipe } from "fp-ts/lib/function";
-import { ZodError } from "zod";
 import { UnexpectedDatabaseError } from "../../common/exceptions/unexpectedDatabaseError";
+import { parseObject } from "../../common/utils/validation";
+import {
+  ValidationError,
+  isValidationError,
+} from "../../common/exceptions/validationError";
 
 async function impureFindAllFighterPrototypes() {
   try {
@@ -34,7 +38,7 @@ async function impureFindFighterPrototypesByFactionId(factionId: string) {
 }
 
 export function findAllFighterPrototypes(): TE.TaskEither<
-  UnexpectedDatabaseError | ZodError,
+  UnexpectedDatabaseError,
   FighterPrototype[]
 > {
   return pipe(
@@ -42,19 +46,21 @@ export function findAllFighterPrototypes(): TE.TaskEither<
       () => impureFindAllFighterPrototypes(),
       (reason) => UnexpectedDatabaseError.of(reason)
     ),
-    TE.chainEitherKW(parseFighterPrototypeArray)
+    TE.chainEitherKW(parseFighterPrototypeArray),
+    parsingErrorHandler
   );
 }
 
 export function findByFactionId(
   factionId: string
-): TE.TaskEither<UnexpectedDatabaseError | ZodError, FighterPrototype[]> {
+): TE.TaskEither<UnexpectedDatabaseError, FighterPrototype[]> {
   return pipe(
     TE.tryCatch(
       () => impureFindFighterPrototypesByFactionId(factionId),
       (reason) => UnexpectedDatabaseError.of(reason)
     ),
-    TE.chainEitherKW(parseFighterPrototypeArray)
+    TE.chainEitherKW(parseFighterPrototypeArray),
+    parsingErrorHandler
   );
 }
 
@@ -87,7 +93,8 @@ export function findByID(id: string) {
             )
           )
     ),
-    TE.chainEitherKW(parseFighterPrototype)
+    TE.chainEitherKW(parseFighterPrototype),
+    parsingErrorHandler
   );
 }
 
@@ -105,26 +112,33 @@ async function impureCreateFighterPrototype(
 
 export function createFighterPrototype(
   fighterPrototype: FighterPrototypeInbound
-): TE.TaskEither<UnexpectedDatabaseError | ZodError, FighterPrototype> {
+): TE.TaskEither<UnexpectedDatabaseError, FighterPrototype> {
   return pipe(
     TE.tryCatch(
       () => impureCreateFighterPrototype(fighterPrototype),
       (reason) => UnexpectedDatabaseError.of(reason)
     ),
-    TE.chainEitherKW(parseFighterPrototype)
+    TE.chainEitherKW(parseFighterPrototype),
+    parsingErrorHandler
   );
 }
 
-function parseFighterPrototype(
-  fighterPrototype: unknown
-): E.Either<ZodError, FighterPrototype> {
-  const result = fighterPrototypeSchema.safeParse(fighterPrototype);
-  return result.success ? E.right(result.data) : E.left(result.error);
-}
+const parseFighterPrototype = parseObject(fighterPrototypeSchema);
+const parseFighterPrototypeArray = parseObject(fighterPrototypeSchema.array());
 
-function parseFighterPrototypeArray(
-  fighterPrototypes: unknown
-): E.Either<ZodError, FighterPrototype[]> {
-  const result = fighterPrototypeSchema.array().safeParse(fighterPrototypes);
-  return result.success ? E.right(result.data) : E.left(result.error);
+function parsingErrorHandler<A>(
+  x: TE.TaskEither<ValidationError | UnexpectedDatabaseError, A>
+) {
+  return pipe(
+    x,
+    TE.swap,
+    TE.map((e) =>
+      isValidationError(e)
+        ? UnexpectedDatabaseError.of(
+            `Database object failed parsing ${e.message}`
+          )
+        : e
+    ),
+    TE.swap
+  );
 }

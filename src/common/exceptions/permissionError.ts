@@ -10,3 +10,9 @@ export class PermissionError extends Error {
     return new PermissionError(reason);
   }
 }
+
+export function isPermissionError(
+  e: PermissionError | Error
+): e is PermissionError {
+  return (e as PermissionError)._tag === "PermissionError";
+}
